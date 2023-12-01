@@ -1,0 +1,1 @@
+That folder requires to store logs from 
