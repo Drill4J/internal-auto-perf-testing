@@ -16,7 +16,7 @@ class MainFacade(
     private val executionService: ExecutionService =
         ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\realworld-java-and-js-coverage"),
     val statisticsWriterService: StatisticsWriterService =
-        StatisticsWriterService(fileName = "statistics/${getCurrentTime()}.txt", charset = Charset.defaultCharset())
+        StatisticsWriterService(fileName = "elastic/statistics/${getCurrentTime()}.txt", charset = Charset.defaultCharset())
 ) {
     init {
         statisticsWriterService.createStatFile()
@@ -27,26 +27,16 @@ class MainFacade(
     private fun adminJob() = CoroutineScope(Dispatchers.Default).async {
         logger.info { "AdminJob was started." }
         while (isActive) {
-            try {
-                addJobTemplate(adminMetricsService, "admin")
-            } catch (ex: Exception) {
-                logger.error { ex }
-            }
+            addJobTemplate(adminMetricsService, "admin")
         }
     }
 
     private fun appJob() = CoroutineScope(Dispatchers.Default).async {
         logger.info { "AppJob was started." }
         while (isActive) {
-            try {
-                addJobTemplate(appMetricsService, "application")
-            } catch (ex: Exception) {
-                logger.error { ex }
-                appMetricsService.metricsRetriever.resetConnection()
-            }
+            addJobTemplate(appMetricsService, "application")
         }
     }
-
 
     fun startAdminPart() {
         logger.info("Admin part was started.")
