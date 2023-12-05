@@ -14,8 +14,8 @@ class StatisticsWriterService(private val fileName: String, private val charset:
         File(fileName).createNewFile()
     }
 
-    fun writeToStatFile(prefix: String, cpuLoad: String, heapLoad: String) {
-        val stringToWrite = "${LocalDateTime.now()} prefix: $prefix, CPU load: $cpuLoad%, Heap load: $heapLoad%"
+    fun writeToStatFile(prefix: String, cpuLoad: String, heapLoad: String, rawHeap: String) {
+        val stringToWrite = "Time: ${LocalDateTime.now()}, prefix: $prefix, CPU load: $cpuLoad%, Heap load: $heapLoad%, Raw heap: $rawHeap"
         logger.debug { "Write stats to file: $fileName, content: $stringToWrite" }
         File(fileName).appendText("\n$stringToWrite", charset)
     }

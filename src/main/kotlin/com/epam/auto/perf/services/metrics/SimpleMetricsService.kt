@@ -12,15 +12,16 @@ class SimpleMetricsService(urlConnection: String) {
 
     private val logger = KotlinLogging.logger {}
     val metricsRetriever: MetricsRetriever = MetricsRetriever(urlConnection)
-    fun getHeapUsage(): Double {
+    fun getHeapUsage(): HeapModel {
         logger.info { "Retrieve heap usage." }
         val memoryMXBean = metricsRetriever.retrieveJMXMetric<MemoryMXBean>(ManagementFactory.MEMORY_MXBEAN_NAME)
 
         val memoryUsage = memoryMXBean.heapMemoryUsage
         val max = memoryUsage.max.toDouble()
-        val used = memoryUsage.used.toDouble()
+        val used = memoryUsage.used
+        val percentHeapUsage = BigDecimal((used / max) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
 
-        return BigDecimal((used / max) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
+        return HeapModel(heapUsage = percentHeapUsage, rawHeap = used)
     }
 
     fun getCPUUsage(): Double {
