@@ -1,1 +1,1 @@
-That folder requires to store logs from 
+That folder requires to store stats from apps
