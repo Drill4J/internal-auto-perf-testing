@@ -13,10 +13,13 @@ import java.lang.Exception
 class MainFacade(
     private val appMetricsService: SimpleMetricsService = SimpleMetricsService("service:jmx:rmi://0.0.0.0:9011/jndi/rmi://0.0.0.0:9010/jmxrmi"),
     private val adminMetricsService: SimpleMetricsService = SimpleMetricsService("service:jmx:rmi://0.0.0.0:9013/jndi/rmi://0.0.0.0:9012/jmxrmi"),
-    private val executionService: ExecutionService =
-        ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\realworld-java-and-js-coverage"),
+    private val dockerExecService: ExecutionService = ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\realworld-java-and-js-coverage"),
+    private val appExecutionService: ExecutionService = ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\internal_spring_api_requester"),
     val statisticsWriterService: StatisticsWriterService =
-        StatisticsWriterService(fileName = "elastic/statistics/${getCurrentTime()}.txt", charset = Charset.defaultCharset())
+        StatisticsWriterService(
+            fileName = "elastic/statistics/${getCurrentTime()}.txt",
+            charset = Charset.defaultCharset()
+        )
 ) {
     init {
         statisticsWriterService.createStatFile()
@@ -40,13 +43,13 @@ class MainFacade(
 
     fun startAdminPart() {
         logger.info("Admin part was started.")
-        executionService.runCommand("docker-compose -f docker/docker-compose-admin.yml up -d")
+        dockerExecService.runCommand("docker-compose -f docker/docker-compose-admin.yml up -d")
         adminJob()
     }
 
     fun startAppPart() {
         logger.info("Application part was started.")
-        executionService.runCommand("docker-compose -f docker/docker-compose-app.yml up -d")
+        dockerExecService.runCommand("docker-compose -f docker/docker-compose-app.yml up -d")
         appJob()
     }
 
@@ -55,11 +58,13 @@ class MainFacade(
         Thread.sleep(5000)
     }
 
-    fun startAppTests(delayTime: Duration, buildNumber: Int) {
+    fun startAppTests(delayTime: Duration, buildNumber: Int, command: String) {
+        logger.info { "Delay before tests: $delayTime" }
+        Thread.sleep(delayTime.inWholeMilliseconds)
         logger.info("Build: $buildNumber. Start application tests.")
         statisticsWriterService.writePlainText("Build: $buildNumber. Application tests started.")
-        executionService.runCommand("./gradlew.bat clean :build1:test")
-        logger.info { "Delay: $delayTime" }
+        appExecutionService.runCommand(command)
+        logger.info { "Delay after tests: $delayTime" }
         statisticsWriterService.writePlainText("Build: $buildNumber. Application tests finished.")
         Thread.sleep(delayTime.inWholeMilliseconds)
     }
@@ -67,8 +72,8 @@ class MainFacade(
     fun deploySecondBuild() {
         logger.info("Deploy build №2.")
         statisticsWriterService.writePlainText("Deploy build №2 started.")
-        executionService.runCommand("docker compose -f docker/docker-compose-app.yml down")
-        executionService.runCommand("docker compose -f docker/docker-compose-app2.yml up -d")
+        appExecutionService.runCommand("docker compose -f docker/docker-compose-app.yml down")
+        appExecutionService.runCommand("docker compose -f docker/docker-compose-app2.yml up -d")
         statisticsWriterService.writePlainText("Deploy build №2 finished.")
         confirmAppStarted()
     }
