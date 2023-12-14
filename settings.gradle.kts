@@ -10,3 +10,4 @@ plugins {
 }
 
 rootProject.name = "automatedPerf"
+include("dump-maker")
