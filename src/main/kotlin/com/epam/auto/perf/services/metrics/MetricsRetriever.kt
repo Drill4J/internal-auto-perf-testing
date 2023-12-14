@@ -1,6 +1,5 @@
 package com.epam.auto.perf.services.metrics
 
-import java.lang.Exception
 import java.lang.management.ManagementFactory
 import javax.management.MBeanServerConnection
 import javax.management.ObjectName
