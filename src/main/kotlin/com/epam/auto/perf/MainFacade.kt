@@ -58,6 +58,12 @@ class MainFacade(
         Thread.sleep(5000)
     }
 
+    //NOTE: use that method if you want to start and stop admin and application manually
+    fun runJobs() {
+        appJob()
+        adminJob()
+    }
+
     fun startAppTests(delayTime: Duration, buildNumber: Int, command: String) {
         logger.info { "Delay before tests: $delayTime" }
         Thread.sleep(delayTime.inWholeMilliseconds)
