@@ -1,0 +1,1 @@
+docker-compose -f elastic/docker-compose-elastic.yml up -d
