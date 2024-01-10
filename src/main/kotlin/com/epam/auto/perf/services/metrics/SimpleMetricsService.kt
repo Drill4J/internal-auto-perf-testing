@@ -27,7 +27,7 @@ class SimpleMetricsService(urlConnection: String) {
     fun getCPUUsage(): Double {
         logger.info { "Retrieve cpu usage." }
         return metricsRetriever.retrieveJMXMetric<OperatingSystemMXBean>(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME)
-            .processCpuLoad
+            .processCpuLoad * 100
     }
 
 }
