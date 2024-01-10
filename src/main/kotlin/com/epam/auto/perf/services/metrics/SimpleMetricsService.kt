@@ -13,7 +13,7 @@ class SimpleMetricsService(urlConnection: String) {
     private val logger = KotlinLogging.logger {}
     val metricsRetriever: MetricsRetriever = MetricsRetriever(urlConnection)
     fun getHeapUsage(): HeapModel {
-        logger.info { "Retrieve heap usage." }
+        logger.debug { "Retrieve heap usage." }
         val memoryMXBean = metricsRetriever.retrieveJMXMetric<MemoryMXBean>(ManagementFactory.MEMORY_MXBEAN_NAME)
 
         val memoryUsage = memoryMXBean.heapMemoryUsage
@@ -25,7 +25,7 @@ class SimpleMetricsService(urlConnection: String) {
     }
 
     fun getCPUUsage(): Double {
-        logger.info { "Retrieve cpu usage." }
+        logger.debug { "Retrieve cpu usage." }
         return metricsRetriever.retrieveJMXMetric<OperatingSystemMXBean>(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME)
             .processCpuLoad * 100
     }
