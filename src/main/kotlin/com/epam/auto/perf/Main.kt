@@ -1,13 +1,14 @@
 package com.epam.auto.perf
 
 
+import com.epam.auto.perf.config.Config
 import kotlin.time.Duration.Companion.minutes
 
-//TODO add config file
 fun main(args: Array<String>) {
-    val runTestCommand = "./gradlew.bat clean :build1:test"
+    val runTestCommand = Config.getProperty("command-to-run-tests")
     MainFacade().run {
-//        runJobs()
+        //NOTE: use 'runJobs' method if you want to start and stop admin and application manually
+        //runJobs()
         startAdminPart()
         startAppPart()
         confirmAppStarted()

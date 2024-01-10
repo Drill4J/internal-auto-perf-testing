@@ -1,5 +1,6 @@
 package com.epam.auto.perf
 
+import com.epam.auto.perf.config.Config
 import com.epam.auto.perf.services.excecution.ExecutionService
 import com.epam.auto.perf.services.metrics.SimpleMetricsService
 import com.epam.auto.perf.services.stats.StatisticsWriterService
@@ -11,10 +12,9 @@ import mu.KotlinLogging
 import java.lang.Exception
 
 class MainFacade(
-    private val appMetricsService: SimpleMetricsService = SimpleMetricsService("service:jmx:rmi://0.0.0.0:9011/jndi/rmi://0.0.0.0:9010/jmxrmi"),
-    private val adminMetricsService: SimpleMetricsService = SimpleMetricsService("service:jmx:rmi://0.0.0.0:9013/jndi/rmi://0.0.0.0:9012/jmxrmi"),
-    private val dockerExecService: ExecutionService = ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\realworld-java-and-js-coverage"),
-    private val appExecutionService: ExecutionService = ExecutionService(workingDirPath = "C:\\projects\\Drill4j\\internal_spring_api_requester"),
+    private val appMetricsService: SimpleMetricsService = SimpleMetricsService(Config.getProperty("app-jmx-connection-url")),
+    private val adminMetricsService: SimpleMetricsService = SimpleMetricsService(Config.getProperty("admin-jmx-connection-url")),
+    private val dockerExecService: ExecutionService = ExecutionService(Config.getProperty("execution-command-path")),
     val statisticsWriterService: StatisticsWriterService =
         StatisticsWriterService(
             fileName = "elastic/statistics/${getCurrentTime()}.txt",
@@ -58,7 +58,6 @@ class MainFacade(
         Thread.sleep(5000)
     }
 
-    //NOTE: use that method if you want to start and stop admin and application manually
     fun runJobs() {
         appJob()
         adminJob()
@@ -69,7 +68,7 @@ class MainFacade(
         Thread.sleep(delayTime.inWholeMilliseconds)
         logger.info("Build: $buildNumber. Start application tests.")
         statisticsWriterService.writePlainText("Build: $buildNumber. Application tests started.")
-        appExecutionService.runCommand(command)
+        dockerExecService.runCommand(command)
         logger.info { "Delay after tests: $delayTime" }
         statisticsWriterService.writePlainText("Build: $buildNumber. Application tests finished.")
         Thread.sleep(delayTime.inWholeMilliseconds)
@@ -78,8 +77,8 @@ class MainFacade(
     fun deploySecondBuild() {
         logger.info("Deploy build №2.")
         statisticsWriterService.writePlainText("Deploy build №2 started.")
-        appExecutionService.runCommand("docker compose -f docker/docker-compose-app.yml down")
-        appExecutionService.runCommand("docker compose -f docker/docker-compose-app2.yml up -d")
+        dockerExecService.runCommand("docker compose -f docker/docker-compose-app.yml down")
+        dockerExecService.runCommand("docker compose -f docker/docker-compose-app2.yml up -d")
         statisticsWriterService.writePlainText("Deploy build №2 finished.")
         confirmAppStarted()
     }
