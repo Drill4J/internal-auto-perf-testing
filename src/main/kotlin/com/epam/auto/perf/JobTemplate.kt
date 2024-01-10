@@ -9,9 +9,9 @@ suspend fun MainFacade.addJobTemplate(
 ) {
     try {
         val cpuUsage = metricsService.getCPUUsage().toString()
-        logger.debug { "$prefix. Got cpuUsage: $cpuUsage" }
+        logger.info { "$prefix. Got cpuUsage: $cpuUsage" }
         val heapModel = metricsService.getHeapUsage()
-        logger.debug { "$prefix. Got heapModel: $heapModel" }
+        logger.info { "$prefix. Got heapModel: $heapModel" }
         statisticsWriterService.writeToStatFile(
             prefix,
             cpuUsage,
@@ -20,7 +20,7 @@ suspend fun MainFacade.addJobTemplate(
         )
         delay(3000)
     } catch (ex: Exception) {
-        logger.error { ex }
+        logger.error { "$prefix. Exception: $ex" }
         metricsService.metricsRetriever.resetConnection()
     }
 }
